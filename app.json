@@ -1,8 +1,23 @@
 {
   "expo": {
-    "name": "nutrsal_app",
-    "slug": "nutrsal_app",
-    "version": "1.0.0",
+    "name": "Nutrosal",
+    "slug": "nu_app",
+    "version": "1.0.6",
+    "scheme": "nutrosal",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "$(PRODUCT_NAME) requires access to the camera and files to receive photos of your scales, profile image,  body photos, and photos of your meals.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save the PDF file to your memory.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,17 +26,37 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "nutrosal",
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) requires access to the camera and files to receive photos of your scales, body photos, profile image and photos of your meals.",
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to save the PDF file to your memory."
+      },
+      "entitlements": {
+        "aps-environment": "production"
+      }
     },
     "android": {
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "useNextNotificationsApi": true,
+      "googleServicesFile": "./google-services.json",
+      "package": "com.farbod_302.nu_app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3610b053-f791-4241-8dc7-d33fafd48711"
+      }
     }
   }
 }

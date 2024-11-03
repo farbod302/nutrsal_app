@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "254525930287",
+    "project_id": "nutrosal-1714145826127",
+    "storage_bucket": "nutrosal-1714145826127.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254525930287:android:9888354df1567bde6effda",
+        "android_client_info": {
+          "package_name": "com.farbod_302.nu_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK2Ibf7Y6jK_jv4MMQUfdFfG_y04FC-nY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
