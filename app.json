@@ -47,7 +47,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#82e08c"
       },
-      "useNextNotificationsApi": true,
       "googleServicesFile": "./google-services.json",
       "package": "com.farbod_302.nu_app"
     },
