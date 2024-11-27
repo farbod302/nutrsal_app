@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nutrosal",
     "slug": "nu_app",
-    "version": "1.0.6",
+    "version": "1.0.10",
     "scheme": "nutrosal",
     "platforms": [
       "ios",
@@ -22,10 +22,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash.gif",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "backgroundColor":"#82e08c",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -41,10 +42,10 @@
       }
     },
     "android": {
-      "versionCode": 4,
+      "versionCode": 12,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#82e08c"
       },
       "useNextNotificationsApi": true,
       "googleServicesFile": "./google-services.json",

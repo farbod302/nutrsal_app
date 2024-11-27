@@ -1,4 +1,4 @@
-import { StyleSheet, BackHandler, Alert, Platform, Image, View, Text, Button } from 'react-native';
+import { StyleSheet, BackHandler, Alert, Platform, Image, View, Text, Button, AppState } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRef, useEffect, useState } from 'react';
@@ -49,19 +49,19 @@ const loading_style = StyleSheet.create({
     margin: "auto",
     display: "flex",
     alignSelf: "center",
-    justifyContent:"center",
+    justifyContent: "center",
 
   },
   abs_view: {
     position: "absolute",
     bottom: "20%",
-    left:"20%"
+    left: "20%"
   },
   error_title: {
     textAlign: "center",
     padding: 5,
-    color:"#fff",
-    fontWeight:"800"
+    color: "#fff",
+    fontWeight: "800"
   }
 });
 
@@ -72,7 +72,7 @@ const Loading = () =>
   >
     <Image
       style={loading_style.img}
-      source={require('./assets/splash.png')}
+      source={require('./assets/splash.gif')}
     />
   </View>
 )
@@ -85,16 +85,15 @@ export default function App() {
   const web_view_ref = useRef();
 
   const replace = (link) => {
-    console.log({ link });
     if (!link) return
     const clean_link = link.replace("nutrosal://", "")
-    if(!clean_link)return
-    console.log({clean_link});
+    if (!clean_link || clean_link.startsWith("exp")) return
     setLink(`https://style.nutrosal.com/${clean_link}`)
   }
 
   const [link, setLink] = useState("https://style.nutrosal.com")
-
+  // const [link, setLink] = useState("http://192.168.50.132:5173")
+  const [key, setKey] = useState(0);
   useEffect(() => {
     Linking.getInitialURL().then(link => {
       replace(link)
@@ -173,7 +172,7 @@ export default function App() {
           <Text style={loading_style.error_title}>
             Please check your internet connection
           </Text>
-         
+
           <Button
             title='Reload'
             onPress={() => { web_view_ref.current.reload() }} />
@@ -186,7 +185,7 @@ export default function App() {
   const get_token = async (client_id) => {
     const token = await registerForPushNotificationsAsync()
     if (!token || token.indexOf("invalid_token") > -1) return
-    const { data } = await axios.post(
+    await axios.post(
       "https://www.nutrosal.com/notificationToken",
       {
         client_id,
@@ -238,6 +237,28 @@ export default function App() {
     }
   };
 
+  const [last, setLast] = useState(Date.now())
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (nextAppState === 'active') {
+        const now = Date.now()
+        if (last + (1000 * 60 * 2) < now || !last) {
+          setKey((prevKey) => prevKey + 1);
+        }
+      } else {
+        setLast(Date.now())
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [last]);
+
+  
 
 
   const handleBackButtonPress = () => {
@@ -259,8 +280,12 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+
+      >
         <WebView
+          key={key}
           startInLoadingState={true}
           ref={web_view_ref}
           style={{
@@ -285,7 +310,7 @@ export default function App() {
               get_token(data?.data.client_id)
             }
           }}
-          onE
+
 
         />
       </SafeAreaView>
@@ -296,7 +321,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#82e08c',
   },
 });
 
