@@ -55,7 +55,8 @@ const loading_style = StyleSheet.create({
   abs_view: {
     position: "absolute",
     bottom: "20%",
-    left: "20%"
+    // left: "20%",
+    width: "100%"
   },
   error_title: {
     textAlign: "center",
@@ -237,28 +238,27 @@ export default function App() {
     }
   };
 
-  const [last, setLast] = useState(Date.now())
+  // const [last, setLast] = useState(Date.now())
+  // useEffect(() => {
+  //   const handleAppStateChange = (nextAppState) => {
+  //     if (nextAppState === 'active') {
+  //       const now = Date.now()
+  //       if (last + (1000 * 60 * 2) < now || !last) {
+  //         setKey((prevKey) => prevKey + 1);
+  //       }
+  //     } else {
+  //       setLast(Date.now())
+  //     }
+  //   };
 
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
-      if (nextAppState === 'active') {
-        const now = Date.now()
-        if (last + (1000 * 60 * 2) < now || !last) {
-          setKey((prevKey) => prevKey + 1);
-        }
-      } else {
-        setLast(Date.now())
-      }
-    };
+  //   const subscription = AppState.addEventListener('change', handleAppStateChange);
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+  //   return () => {
+  //     subscription.remove();
+  //   };
+  // }, [last]);
 
-    return () => {
-      subscription.remove();
-    };
-  }, [last]);
 
-  
 
 
   const handleBackButtonPress = () => {
@@ -282,12 +282,23 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView
         style={styles.container}
+        edges={["top", "right", "left"]}
 
       >
         <WebView
           key={key}
           startInLoadingState={true}
+          cacheEnabled={true}
           ref={web_view_ref}
+          allowsBackForwardNavigationGestures={true}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          onContentProcessDidTerminate={() => {
+            setKey(prv => prv + 1)
+          }}
+          onRenderProcessGone={() => {
+            setKey(prv => prv + 1)
+          }}
           style={{
             display: "flex",
             alignSelf: "center",
@@ -299,6 +310,9 @@ export default function App() {
           source={{ uri: link }}
           renderLoading={Loading}
           renderError={Error}
+          onLoadEnd={(e) => {
+            console.log(e);
+          }}
           onMessage={(e) => {
             const { data: json } = e.nativeEvent
             const data = JSON.parse(json);
@@ -322,6 +336,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#82e08c',
+    paddingBottom: 5
   },
 });
 

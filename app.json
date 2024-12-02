@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nutrosal",
     "slug": "nu_app",
-    "version": "1.0.10",
+    "version": "1.0.12",
     "scheme": "nutrosal",
     "platforms": [
       "ios",
@@ -26,7 +26,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "backgroundColor":"#82e08c",
+    "backgroundColor": "#82e08c",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -35,14 +35,18 @@
       "bundleIdentifier": "nutrosal",
       "infoPlist": {
         "NSCameraUsageDescription": "$(PRODUCT_NAME) requires access to the camera and files to receive photos of your scales, body photos, profile image and photos of your meals.",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to save the PDF file to your memory."
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to save the PDF file to your memory.",
+        "UIBackgroundModes": ["remote-notification"]
       },
       "entitlements": {
         "aps-environment": "production"
+      },
+      "config": {
+        "usesPushNotifications": true
       }
     },
     "android": {
-      "versionCode": 12,
+      "versionCode": 15,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#82e08c"
