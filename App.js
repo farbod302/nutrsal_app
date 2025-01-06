@@ -82,6 +82,8 @@ const Loading = () =>
 
 
 
+
+
 export default function App() {
   const web_view_ref = useRef();
 
@@ -89,10 +91,10 @@ export default function App() {
     if (!link) return
     const clean_link = link.replace("nutrosal://", "")
     if (!clean_link || clean_link.startsWith("exp")) return
-    setLink(`https://style.nutrosal.com/${clean_link}`)
+    setLink(`https://nutrosal.com/${clean_link}`)
   }
 
-  const [link, setLink] = useState("https://style.nutrosal.com")
+  const [link, setLink] = useState("https://nutrosal.com")
   // const [link, setLink] = useState("http://192.168.50.132:5173")
   const [key, setKey] = useState(0);
   useEffect(() => {
@@ -129,9 +131,6 @@ export default function App() {
         alert('Failed to get push token for push notification!');
         return;
       }
-      // Learn more about projectId:
-      // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-      // EAS projectId is used here.
       try {
         const projectId =
           Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
@@ -187,7 +186,7 @@ export default function App() {
     const token = await registerForPushNotificationsAsync()
     if (!token || token.indexOf("invalid_token") > -1) return
     await axios.post(
-      "https://www.nutrosal.com/notificationToken",
+      "https://backend.nutrosal.com/notificationToken",
       {
         client_id,
         token
@@ -278,6 +277,34 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      if (data.redirect) {
+        setLink("https://nutrosal.com" + data.redirect)
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const checkInitialNotification = async () => {
+      const response = await Notifications.getLastNotificationResponseAsync();
+      if (response?.notification) {
+        const data = response.notification.request.content.data;
+        console.log('App opened with notification:', data);
+        if (data.redirect) {
+          console.log(data.redirect);
+          setLink("https://nutrosal.com" + data.redirect)
+        }
+      }
+    };
+
+    checkInitialNotification();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView
@@ -293,6 +320,8 @@ export default function App() {
           allowsBackForwardNavigationGestures={true}
           javaScriptEnabled={true}
           domStorageEnabled={true}
+          allowsFullscreenVideo={true}
+          allowsInlineMediaPlayback={true}
           onContentProcessDidTerminate={() => {
             setKey(prv => prv + 1)
           }}
@@ -303,16 +332,12 @@ export default function App() {
             display: "flex",
             alignSelf: "center",
             width: "100%",
-            maxWidth: 460,
             height: "100%",
             backgroundColor: "#fff"
           }}
           source={{ uri: link }}
           renderLoading={Loading}
           renderError={Error}
-          onLoadEnd={(e) => {
-            console.log(e);
-          }}
           onMessage={(e) => {
             const { data: json } = e.nativeEvent
             const data = JSON.parse(json);
