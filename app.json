@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nutrosal",
     "slug": "nu_app",
-    "version": "1.0.16",
+    "version": "1.0.19",
     "scheme": "nutrosal",
     "platforms": [
       "ios",
@@ -46,7 +46,7 @@
       }
     },
     "android": {
-      "versionCode": 18,
+      "versionCode": 19,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#82e08c"

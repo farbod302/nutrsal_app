@@ -1,4 +1,4 @@
-import { StyleSheet, BackHandler, Alert, Platform, Image, View, Text, Button, AppState } from 'react-native';
+import { StyleSheet, BackHandler, Alert, Platform, Image, View, Text, Button } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRef, useEffect, useState } from 'react';
@@ -342,11 +342,16 @@ export default function App() {
             const { data: json } = e.nativeEvent
             const data = JSON.parse(json);
             const { type } = data
+            console.log(type);
             if (type === "download_pdf") {
               saveFile(data?.data?.base64, "diet.pdf");
             }
             if (type === "notification_token") {
               get_token(data?.data.client_id)
+            }
+            if (type === "open_browser") {
+              const { url } = data
+              Linking.openURL(url)
             }
           }}
 
