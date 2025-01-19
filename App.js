@@ -10,8 +10,7 @@ import { StorageAccessFramework } from 'expo-file-system';
 import Constants from 'expo-constants';
 import axios from "axios"
 import * as Linking from 'expo-linking';
-
-
+import { Audio } from 'expo-av';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -95,7 +94,7 @@ export default function App() {
   }
 
   const [link, setLink] = useState("https://nutrosal.com")
-  // const [link, setLink] = useState("http://192.168.50.132:5173")
+  // const [link, setLink] = useState("http://192.168.206.132:5173")
   const [key, setKey] = useState(0);
   useEffect(() => {
     Linking.getInitialURL().then(link => {
@@ -153,6 +152,11 @@ export default function App() {
     }
 
     return token;
+  }
+
+
+  const get_mic_permission = () => {
+    Audio.requestPermissionsAsync()
   }
 
   const Error = () =>
@@ -322,6 +326,7 @@ export default function App() {
           domStorageEnabled={true}
           allowsFullscreenVideo={true}
           allowsInlineMediaPlayback={true}
+          mediaPlaybackRequiresUserAction={false}
           onContentProcessDidTerminate={() => {
             setKey(prv => prv + 1)
           }}
@@ -352,6 +357,9 @@ export default function App() {
             if (type === "open_browser") {
               const { url } = data
               Linking.openURL(url)
+            }
+            if (type === "mic_permission") {
+              get_mic_permission()
             }
           }}
 
