@@ -93,8 +93,8 @@ export default function App() {
     setLink(`https://nutrosal.com/${clean_link}`)
   }
 
-  const [link, setLink] = useState("https://nutrosal.com")
-  // const [link, setLink] = useState("http://192.168.206.132:5173")
+  // const [link, setLink] = useState("https://nutrosal.com")
+  const [link, setLink] = useState("http://192.168.208.132:5173")
   const [key, setKey] = useState(0);
   useEffect(() => {
     Linking.getInitialURL().then(link => {
@@ -108,7 +108,7 @@ export default function App() {
 
 
   async function registerForPushNotificationsAsync() {
-    let token;
+    let token,device_token;
 
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
@@ -142,8 +142,9 @@ export default function App() {
             projectId,
           })
         ).data;
-
+         device_token = (await Notifications.getDevicePushTokenAsync()).data
       } catch (e) {
+        console.log(e);
         token = `invalid_token${e}`;
 
       }
@@ -151,7 +152,7 @@ export default function App() {
       alert('Must use physical device for Push Notifications');
     }
 
-    return token;
+    return { token, device_token };
   }
 
 
@@ -187,13 +188,15 @@ export default function App() {
 
 
   const get_token = async (client_id) => {
-    const token = await registerForPushNotificationsAsync()
+    const { token, device_token } = await registerForPushNotificationsAsync()
+    console.log({ token,device_token });
     if (!token || token.indexOf("invalid_token") > -1) return
     await axios.post(
       "https://backend.nutrosal.com/notificationToken",
       {
         client_id,
-        token
+        token,
+        device_token
       }
     )
 
