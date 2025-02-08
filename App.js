@@ -11,13 +11,15 @@ import Constants from 'expo-constants';
 import axios from "axios"
 import * as Linking from 'expo-linking';
 import { Audio } from 'expo-av';
+import {useCameraPermissions } from 'expo-camera';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: false,
-    shouldSetBadge: false,
+    shouldSetBadge: true,
   }),
 });
+const [permission, requestPermission] = useCameraPermissions();
 
 const loading_style = StyleSheet.create({
   container: {
@@ -94,7 +96,7 @@ export default function App() {
   }
 
   // const [link, setLink] = useState("https://nutrosal.com")
-  const [link, setLink] = useState("http://192.168.208.132:5173")
+  const [link, setLink] = useState("http://192.168.123.132:5173")
   const [key, setKey] = useState(0);
   useEffect(() => {
     Linking.getInitialURL().then(link => {
@@ -106,9 +108,14 @@ export default function App() {
     }
   }, [])
 
+  useEffect(()=>{
+    alert("permission")
+    requestPermission()
+  },[])
+
 
   async function registerForPushNotificationsAsync() {
-    let token,device_token;
+    let token, device_token;
 
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
@@ -142,7 +149,8 @@ export default function App() {
             projectId,
           })
         ).data;
-         device_token = (await Notifications.getDevicePushTokenAsync()).data
+        console.log(token);
+        device_token = ""
       } catch (e) {
         console.log(e);
         token = `invalid_token${e}`;
@@ -159,6 +167,8 @@ export default function App() {
   const get_mic_permission = () => {
     Audio.requestPermissionsAsync()
   }
+
+  const [badge, setBadge] = useState(0)
 
   const Error = () =>
   (
@@ -189,7 +199,7 @@ export default function App() {
 
   const get_token = async (client_id) => {
     const { token, device_token } = await registerForPushNotificationsAsync()
-    console.log({ token,device_token });
+    console.log({ token, device_token });
     if (!token || token.indexOf("invalid_token") > -1) return
     await axios.post(
       "https://backend.nutrosal.com/notificationToken",
@@ -285,7 +295,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+
+    const badge_count = Notifications.addNotificationReceivedListener(() => {
+      console.log("Notife recived");
+      setBadge((prevCount) => {
+        const newCount = prevCount + 1;
+        Notifications.setBadgeCountAsync(newCount);
+        return newCount;
+      });
+    })
+
     const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      setBadge(0);
+      Notifications.setBadgeCountAsync(0);
       const data = response.notification.request.content.data;
       if (data.redirect) {
         setLink("https://nutrosal.com" + data.redirect)
@@ -293,8 +315,11 @@ export default function App() {
     });
     return () => {
       subscription.remove();
+      badge_count.remove()
     };
   }, []);
+
+
 
   useEffect(() => {
     const checkInitialNotification = async () => {
@@ -350,9 +375,8 @@ export default function App() {
             const { data: json } = e.nativeEvent
             const data = JSON.parse(json);
             const { type } = data
-            console.log(type);
             if (type === "download_pdf") {
-              saveFile(data?.data?.base64, "diet.pdf");
+              saveFile(data?.data?.base64, "diet");
             }
             if (type === "notification_token") {
               get_token(data?.data.client_id)
