@@ -11,7 +11,7 @@ import Constants from 'expo-constants';
 import axios from "axios"
 import * as Linking from 'expo-linking';
 import { Audio } from 'expo-av';
-import {useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -19,7 +19,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
-const [permission, requestPermission] = useCameraPermissions();
 
 const loading_style = StyleSheet.create({
   container: {
@@ -87,6 +86,7 @@ const Loading = () =>
 
 export default function App() {
   const web_view_ref = useRef();
+  const [permission, requestPermission] = useCameraPermissions();
 
   const replace = (link) => {
     if (!link) return
@@ -95,8 +95,8 @@ export default function App() {
     setLink(`https://nutrosal.com/${clean_link}`)
   }
 
-  // const [link, setLink] = useState("https://nutrosal.com")
-  const [link, setLink] = useState("http://192.168.123.132:5173")
+  const [link, setLink] = useState("https://nutrosal.com")
+  // const [link, setLink] = useState("http://192.168.123.132:5173")
   const [key, setKey] = useState(0);
   useEffect(() => {
     Linking.getInitialURL().then(link => {
@@ -107,11 +107,6 @@ export default function App() {
       listener.remove()
     }
   }, [])
-
-  useEffect(()=>{
-    alert("permission")
-    requestPermission()
-  },[])
 
 
   async function registerForPushNotificationsAsync() {
@@ -212,7 +207,7 @@ export default function App() {
 
   }
 
-  const saveFile = async (fileUri, fileName = 'File') => {
+  const saveFile = async (fileUri, fileName) => {
     try {
       if (Platform.OS === 'android') {
         const doc = StorageAccessFramework.getUriForDirectoryInRoot('Documents');
@@ -376,7 +371,7 @@ export default function App() {
             const data = JSON.parse(json);
             const { type } = data
             if (type === "download_pdf") {
-              saveFile(data?.data?.base64, "diet");
+              saveFile(data?.data?.base64, data?.data?.name || "diet");
             }
             if (type === "notification_token") {
               get_token(data?.data.client_id)
@@ -387,6 +382,9 @@ export default function App() {
             }
             if (type === "mic_permission") {
               get_mic_permission()
+            }
+            if (type === "cam") {
+              requestPermission()
             }
           }}
 

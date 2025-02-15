@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nutrosal",
     "slug": "nu_app",
-    "version": "1.0.20",
+    "version": "1.0.21",
     "scheme": "nutrosal",
     "platforms": [
       "ios",
@@ -62,7 +62,7 @@
       }
     },
     "android": {
-      "versionCode": 20,
+      "versionCode": 21,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#82e08c"
@@ -73,6 +73,7 @@
         "CAMERA",
         "RECORD_AUDIO",
         "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_MEDIA_LOCATION",
