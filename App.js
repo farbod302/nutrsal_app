@@ -12,6 +12,8 @@ import axios from "axios"
 import * as Linking from 'expo-linking';
 import { Audio } from 'expo-av';
 import { useCameraPermissions } from 'expo-camera';
+import { PanResponder } from 'react-native';
+import app_json from "./app.json"
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -30,40 +32,63 @@ const loading_style = StyleSheet.create({
     width: '100%',
   },
   img: {
-
     position: 'absolute',
     height: '100%',
     width: '100%',
-
   },
   error_container: {
     position: 'absolute',
     flex: 1,
     height: '100%',
     width: '100%',
-
+  },
+  error_background: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
   },
   error_content: {
     flex: 1,
-    width: "80%",
-    margin: "auto",
-    display: "flex",
-    alignSelf: "center",
-    justifyContent: "center",
-
-  },
-  abs_view: {
-    position: "absolute",
-    bottom: "20%",
-    // left: "20%",
-    width: "100%"
   },
   error_title: {
-    textAlign: "center",
-    padding: 5,
-    color: "#fff",
-    fontWeight: "800"
-  }
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E3A59',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  error_subtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 60,
+  },
+  error_text_container: {
+    position: 'absolute',
+    bottom: 160,
+    left: 40,
+    right: 40,
+    alignItems: 'center',
+  },
+  reload_button_container: {
+    position: 'absolute',
+    bottom: 80,
+    left: 40,
+    right: 40,
+  },
+  reload_button: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  reload_button_text: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
 
 const Loading = () =>
@@ -80,6 +105,7 @@ const Loading = () =>
 
 
 
+const version = app_json.expo.version
 
 
 
@@ -92,11 +118,13 @@ export default function App() {
     if (!link) return
     const clean_link = link.replace("nutrosal://", "")
     if (!clean_link || clean_link.startsWith("exp")) return
-    setLink(`https://nutrosal.com/${clean_link}`)
+    //redirect to clean link
+    if(!web_view_ref.current) return setLink(`https://nutrosal.com/${clean_link}`)
+    web_view_ref.current.injectJavaScript(`window.location.href = "https://nutrosal.com/${clean_link}"`)
   }
 
   const [link, setLink] = useState("https://nutrosal.com")
-  // const [link, setLink] = useState("http://192.168.123.132:5173")
+  // const [link, setLink] = useState("http://192.168.70.162:5173")
   const [key, setKey] = useState(0);
   useEffect(() => {
     Linking.getInitialURL().then(link => {
@@ -144,10 +172,8 @@ export default function App() {
             projectId,
           })
         ).data;
-        console.log(token);
         device_token = ""
       } catch (e) {
-        console.log(e);
         token = `invalid_token${e}`;
 
       }
@@ -165,31 +191,46 @@ export default function App() {
 
   const [badge, setBadge] = useState(0)
 
-  const Error = () =>
-  (
-    <View
-      style={loading_style.error_container}
-    >
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (evt, gestureState) => {
+      return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && 
+             gestureState.dx > 0 && 
+             evt.nativeEvent.pageX < 50;
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      if (gestureState.dx > 50 && gestureState.vx > 0.3) {
+        handleBackButtonPress();
+      }
+    },
+  });
+
+  const Error = (error) => {
+    return (
+      <View style={loading_style.error_container}>
       <Image
-        style={loading_style.img}
-        source={require('./assets/splash_raw.png')}
+        style={loading_style.error_background}
+        source={require('./assets/no-connection.jpg')}
       />
       <View style={loading_style.error_content}>
-        <View style={loading_style.abs_view}>
-          <Text style={loading_style.error_title}>
-            Error Loading Page
-          </Text>
-          <Text style={loading_style.error_title}>
-            Please check your internet connection
-          </Text>
-
-          <Button
-            title='Reload'
-            onPress={() => { web_view_ref.current.reload() }} />
-        </View>
+      </View>
+      <View style={loading_style.error_text_container}>
+        <Text style={loading_style.error_title}>
+          No internet connection
+        </Text>
+        <Text style={loading_style.error_subtitle}>
+          Please check your internet connection
+        </Text>
+      </View>
+      <View style={loading_style.reload_button_container}>
+        <Button
+          title="Reload"
+          color="#4CAF50"
+          onPress={() => { web_view_ref.current.reload() }}
+        />
       </View>
     </View>
-  )
+    );
+  };
 
 
   const get_token = async (client_id) => {
@@ -207,7 +248,7 @@ export default function App() {
 
   }
 
-  const saveFile = async (fileUri, fileName) => {
+  const saveFile = async (fileUri, fileName, file_type) => {
     try {
       if (Platform.OS === 'android') {
         const doc = StorageAccessFramework.getUriForDirectoryInRoot('Documents');
@@ -216,7 +257,7 @@ export default function App() {
           return;
         }
         try {
-          await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, fileName, 'application/pdf')
+          await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, fileName, file_type || 'application/pdf')
             .then(async (uri) => {
               await FileSystem.writeAsStringAsync(uri, fileUri.split(',')[1], { encoding: FileSystem.EncodingType.Base64 });
               Alert.alert('Success', 'Report Downloaded Successfully');
@@ -229,13 +270,13 @@ export default function App() {
           throw new Error(e);
         }
       } else if (Platform.OS === 'ios') {
-        const fileUriLocal = `${FileSystem.documentDirectory}${fileName}.pdf`;
+        const fileUriLocal = `${FileSystem.documentDirectory}${fileName}`;
         await FileSystem.writeAsStringAsync(fileUriLocal, fileUri.split(',')[1], { encoding: FileSystem.EncodingType.Base64 });
 
         const shareOptions = {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Share your PDF',
-          UTI: 'com.adobe.pdf',
+          mimeType: file_type || 'application/pdf',
+          dialogTitle: 'Share your file',
+          UTI: file_type === 'application/pdf' ? 'com.adobe.pdf' : 'public.data',
         };
 
         if (await Sharing.isAvailableAsync()) {
@@ -321,9 +362,7 @@ export default function App() {
       const response = await Notifications.getLastNotificationResponseAsync();
       if (response?.notification) {
         const data = response.notification.request.content.data;
-        console.log('App opened with notification:', data);
         if (data.redirect) {
-          console.log(data.redirect);
           setLink("https://nutrosal.com" + data.redirect)
         }
       }
@@ -331,7 +370,6 @@ export default function App() {
 
     checkInitialNotification();
   }, []);
-
   return (
     <SafeAreaProvider>
       <SafeAreaView
@@ -339,57 +377,61 @@ export default function App() {
         edges={["top", "right", "left"]}
 
       >
-        <WebView
-          key={key}
-          startInLoadingState={true}
-          cacheEnabled={true}
-          ref={web_view_ref}
-          allowsBackForwardNavigationGestures={true}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          allowsFullscreenVideo={true}
-          allowsInlineMediaPlayback={true}
-          mediaPlaybackRequiresUserAction={false}
-          onContentProcessDidTerminate={() => {
-            setKey(prv => prv + 1)
-          }}
-          onRenderProcessGone={() => {
-            setKey(prv => prv + 1)
-          }}
-          style={{
-            display: "flex",
-            alignSelf: "center",
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#fff"
-          }}
-          source={{ uri: link }}
-          renderLoading={Loading}
-          renderError={Error}
-          onMessage={(e) => {
-            const { data: json } = e.nativeEvent
-            const data = JSON.parse(json);
-            const { type } = data
-            if (type === "download_pdf") {
-              saveFile(data?.data?.base64, data?.data?.name || "diet");
-            }
-            if (type === "notification_token") {
-              get_token(data?.data.client_id)
-            }
-            if (type === "open_browser") {
-              const { url } = data
-              Linking.openURL(url)
-            }
-            if (type === "mic_permission") {
-              get_mic_permission()
-            }
-            if (type === "cam") {
-              requestPermission()
-            }
-          }}
+        <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+          <WebView
+                key={key}
+                startInLoadingState={true}
+                cacheEnabled={true}
+                ref={web_view_ref}
+                allowsBackForwardNavigationGestures={true}
+                javaScriptEnabled={true}
+                domStorageEnabled={true}
+                allowsFullscreenVideo={true}
+                allowsInlineMediaPlayback={true}
+                mediaPlaybackRequiresUserAction={false}
+                thirdPartyCookiesEnabled
+                onContentProcessDidTerminate={() => {
+                  setKey(prv => prv + 1)
+                }}
+                onRenderProcessGone={() => {
+                  setKey(prv => prv + 1)
+                }}
+                style={{
+                  display: "flex",
+                  alignSelf: "center",
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "#fff"
+                }}
+                source={{ uri: link }}
+                renderLoading={Loading}
+                renderError={Error}
+                onMessage={(e) => {
+                  const { data: json } = e.nativeEvent
+                  const data = JSON.parse(json);
+                  const { type } = data
+                  if (type === "download_pdf") {
+                    saveFile(data?.data?.base64, data?.data?.name || "diet",data?.data?.type);
+                  }
+                  if (type === "notification_token") {
+                    get_token(data?.data.client_id)
+                  }
+                  if (type === "open_browser") {
+                    const { url } = data
+                    Linking.openURL(url)
+                  }
+                  if (type === "mic_permission") {
+                    get_mic_permission()
+                  }
+                  if (type === "cam") {
+                    requestPermission()
+                  }
+               
+                }}
 
 
-        />
+              />
+        </View>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -398,7 +440,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#82e08c',
+    backgroundColor: '#fff',
     paddingBottom: 5
   },
 });

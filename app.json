@@ -39,7 +39,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "backgroundColor": "#82e08c",
+    "backgroundColor": "#ffffff",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -65,7 +65,7 @@
       "versionCode": 21,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#82e08c"
+        "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
       "package": "com.farbod_302.nu_app",
