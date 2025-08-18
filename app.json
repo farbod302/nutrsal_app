@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nutrosal",
     "slug": "nu_app",
-    "version": "1.0.21",
+    "version": "1.0.22",
     "scheme": "nutrosal",
     "platforms": [
       "ios",
@@ -51,8 +51,10 @@
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to save the PDF file to your memory.",
         "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) requires access to the microphone to record audio for your voice input.",
         "UIBackgroundModes": [
+          "remote-notification",
           "remote-notification"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
         "aps-environment": "production"
@@ -62,7 +64,7 @@
       }
     },
     "android": {
-      "versionCode": 21,
+      "versionCode": 22,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

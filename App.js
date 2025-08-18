@@ -261,7 +261,6 @@ export default function App() {
             .then(async (uri) => {
               await FileSystem.writeAsStringAsync(uri, fileUri.split(',')[1], { encoding: FileSystem.EncodingType.Base64 });
               Alert.alert('Success', 'Report Downloaded Successfully');
-              web_view_ref.current.goBack();
             })
             .catch((e) => {
               console.log(e);
@@ -290,27 +289,7 @@ export default function App() {
     }
   };
 
-  // const [last, setLast] = useState(Date.now())
-  // useEffect(() => {
-  //   const handleAppStateChange = (nextAppState) => {
-  //     if (nextAppState === 'active') {
-  //       const now = Date.now()
-  //       if (last + (1000 * 60 * 2) < now || !last) {
-  //         setKey((prevKey) => prevKey + 1);
-  //       }
-  //     } else {
-  //       setLast(Date.now())
-  //     }
-  //   };
-
-  //   const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-  //   return () => {
-  //     subscription.remove();
-  //   };
-  // }, [last]);
-
-
+  
 
 
   const handleBackButtonPress = () => {
